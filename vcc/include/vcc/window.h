@@ -122,7 +122,7 @@ struct window_type {
 	friend swapchain::swapchain_type resize(window_type &, VkExtent2D,
 			const swapchain_create_callback_type &, const swapchain_destroy_callback_type &,
 			swapchain::swapchain_type &);
-	friend void draw(window_type &, swapchain::swapchain_type &,
+	friend VkResult draw(window_type &, swapchain::swapchain_type &,
 		vcc::semaphore::semaphore_type &, vcc::semaphore::semaphore_type &,
 		const draw_callback_type &, const swapchain_create_callback_type &,
 		const swapchain_destroy_callback_type &, VkExtent2D);

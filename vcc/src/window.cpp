@@ -179,7 +179,7 @@ swapchain::swapchain_type resize(window_type &window, VkExtent2D extent,
 	return swapchain;
 }
 
-void draw(window_type &window, swapchain::swapchain_type &swapchain,
+VkResult draw(window_type &window, swapchain::swapchain_type &swapchain,
 		vcc::semaphore::semaphore_type &image_acquired_semaphore,
 		vcc::semaphore::semaphore_type &draw_semaphore,
 		const draw_callback_type &draw_callback,
@@ -192,11 +192,7 @@ void draw(window_type &window, swapchain::swapchain_type &swapchain,
 			swapchain, image_acquired_semaphore);
 		switch (err) {
 		case VK_ERROR_OUT_OF_DATE_KHR:
-			// swapchain is out of date (e.g. the window was resized) and
-			// must be recreated:
-			swapchain = resize(window, extent, swapchain_create_callback,
-				swapchain_destroy_callback, swapchain);
-			break;
+			return err;
 		case VK_SUBOPTIMAL_KHR:
 			VCC_PRINT("VK_SUBOPTIMAL_KHR");
 			// swapchain is not as optimal as it could be, but the platform's
@@ -220,11 +216,7 @@ void draw(window_type &window, swapchain::swapchain_type &swapchain,
 
 	switch (err) {
 	case VK_ERROR_OUT_OF_DATE_KHR:
-		// swapchain is out of date (e.g. the window was resized) and
-		// must be recreated:
-		swapchain = resize(window, extent, swapchain_create_callback, swapchain_destroy_callback,
-			swapchain);
-		break;
+		return err;
 	case VK_SUBOPTIMAL_KHR:
 		// swapchain is not as optimal as it could be, but the platform's
 		// presentation engine will still present the image correctly.
@@ -233,6 +225,7 @@ void draw(window_type &window, swapchain::swapchain_type &swapchain,
 	default:
 		assert(!err);
 	}
+	return VK_SUCCESS;
 }
 
 void initialize(window_type &window,
@@ -543,8 +536,12 @@ int run(window_type &window, const swapchain_create_callback_type &swapchain_cre
 					swapchain_destroy_callback, swapchain);
 				draw_extent = resize_extent;
 			}
-			draw(window, swapchain, image_acquired_semaphore, draw_semaphore, draw_callback,
-				swapchain_create_callback, swapchain_destroy_callback, draw_extent);
+			if (draw(window, swapchain, image_acquired_semaphore, draw_semaphore, draw_callback,
+				swapchain_create_callback, swapchain_destroy_callback, draw_extent) == VK_ERROR_OUT_OF_DATE_KHR
+				&& running) {
+				swapchain = resize(window, extent, swapchain_create_callback,
+					swapchain_destroy_callback, swapchain);
+			}
 		}
 	});
 
