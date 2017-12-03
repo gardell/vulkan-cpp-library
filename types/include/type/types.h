@@ -257,6 +257,10 @@ struct alignment_type<linear> {
 		return offset;
 	}
 
+	constexpr static std::size_t array_alignment(std::size_t alignment) {
+		return alignment;
+	}
+
 	template<typename T, bool IsArray>
 	constexpr static std::size_t size() {
 		return primitive_type_information<linear, T>::size;
@@ -321,6 +325,8 @@ template<memory_layout layout> struct primitive_type_information<layout, int32_t
 	: primitive_primitive_type_information<int32_t> {};
 template<memory_layout layout> struct primitive_type_information<layout, uint32_t>
 	: primitive_primitive_type_information<uint32_t> {};
+template<memory_layout layout> struct primitive_type_information<layout, bool>
+	: primitive_primitive_type_information<bool> {};
 
 template<typename T, std::size_t Size, std::size_t Alignment = Size>
 struct glm_vec_type_information {

@@ -408,9 +408,11 @@ int main(int argc, const char **argv) {
 				const vcc::semaphore::semaphore_type &signal_semaphore) {
 			glm::mat4 view_matrix(glm::lookAt(glm::vec3(0, 0, camera_distance),
 				glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
-			type::write(modelview_matrix)[0] = view_matrix
+			const auto modelview_matrix_(view_matrix
 				* glm::rotate(angle.y, glm::vec3(1, 0, 0))
-				* glm::rotate(angle.x, glm::vec3(0, 1, 0));
+				* glm::rotate(angle.x, glm::vec3(0, 1, 0)));
+			type::write(modelview_matrix)[0] = modelview_matrix_;
+			type::write(normal_matrix)[0] = glm::transpose(glm::inverse(glm::mat3(modelview_matrix_)));
 			vcc::queue::submit(queue,
 				{
 					vcc::queue::wait_semaphore{ std::ref(wait_semaphore),

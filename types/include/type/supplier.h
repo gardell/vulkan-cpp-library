@@ -174,7 +174,10 @@ template<typename T>
 struct supplier_lookup_type {
 	typedef typename std::remove_reference<T>::type type;
 };
-
+template<typename T>
+struct supplier_lookup_type<supplier<T>> {
+	typedef T type;
+};
 template<typename T>
 struct supplier_lookup_type<std::shared_ptr<T>> {
 	typedef T type;

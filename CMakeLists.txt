@@ -183,6 +183,36 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
 # Add png directly to our build.
 add_subdirectory(${PNG_SRC_DIR} ${PNG_BUILD_DIR})
 
+#
+# Json
+#
+
+# Download and unpack json at configure time
+configure_file(CMakeLists.txt.json.in
+               json-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/json-download)
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/json-download)
+
+# Add json directly to our build. This adds
+# the following targets: gtest, gtest_main, gmock
+# and gmock_main
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/json-src
+                 ${CMAKE_CURRENT_BINARY_DIR}/json-build)
+
+#
+# glTF sample models
+#
+
+# Download and unpack gltf-sample-models at configure time
+configure_file(CMakeLists.txt.gltf-sample-models.in
+               gltf-sample-models-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gltf-sample-models-download)
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gltf-sample-models-download)
+
 endif()
 
 enable_testing()
@@ -208,19 +238,22 @@ add_subdirectory(spirv-reflection)
 add_subdirectory(types)
 add_subdirectory(vcc)
 add_subdirectory(vcc-image)
+add_subdirectory(gltf)
 add_subdirectory(sample/cube)
 add_subdirectory(sample/heightmap)
 add_subdirectory(sample/lighting)
 add_subdirectory(sample/normal-mapping-and-cube-texture)
 add_subdirectory(sample/teapot)
+add_subdirectory(sample/gltf)
 
-set(SAMPLES cube heightmap lighting normal-mapping-and-cube-texture teapot)
+set(SAMPLES cube heightmap lighting normal-mapping-and-cube-texture teapot sample_gltf)
 
 if(NOT DEFINED ANDROID_NDK)
 
 add_subdirectory(spirv-reflection-test)
 add_subdirectory(types-test)
 add_subdirectory(vcc-test)
+add_subdirectory(gltf-test)
 
 add_subdirectory(sample/openvr)
 list(APPEND SAMPLES openvr)
