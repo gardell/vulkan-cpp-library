@@ -34,7 +34,8 @@ VCC_LIBRARY image::image_type create(
 	VkFormatFeatureFlags feature_flags,
 	VkSharingMode sharingMode,
 	const std::vector<uint32_t> &queueFamilyIndices,
-	std::istream &&stream);
+	std::istream &&stream,
+	bool flip_y);
 
 #if defined(__ANDROID__) || defined(ANDROID)
 /*

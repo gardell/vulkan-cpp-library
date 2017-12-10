@@ -261,11 +261,12 @@ int main(int argc, const char **argv) {
 		VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, VK_IMAGE_USAGE_SAMPLED_BIT,
 		VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT, VK_SHARING_MODE_EXCLUSIVE, {},
 #if defined(__ANDROID__) || defined(ANDROID)
-			android::asset_istream(state->activity->assetManager, "storforsen_etc2_rgb.ktx")
+			android::asset_istream(state->activity->assetManager, "storforsen_etc2_rgb.ktx"),
 #else
 			std::ifstream("textures/storforsen4/storforsen4.ktx",
-				std::ios_base::binary | std::ios_base::in)
+				std::ios_base::binary | std::ios_base::in),
 #endif  // __ ANDROID__
+			true
 		));
 	const VkFormat image_format(vcc::image::get_format(image));
 

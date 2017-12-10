@@ -33,7 +33,8 @@ struct loader_type {
 		VkFormatFeatureFlags feature_flags,
 		VkSharingMode sharingMode,
 		const std::vector<uint32_t> &queueFamilyIndices,
-		std::istream &stream) = 0;
+		std::istream &stream,
+		bool flip_y) = 0;
 };
 
 #if !defined(__ANDROID__) && !defined(ANDROID)
@@ -47,7 +48,8 @@ struct png_loader_type : public loader_type {
 		VkFormatFeatureFlags feature_flags,
 		VkSharingMode sharingMode,
 		const std::vector<uint32_t> &queueFamilyIndices,
-		std::istream &stream);
+		std::istream &stream,
+		bool flip_y);
 };
 
 #endif // __ANDROID__
@@ -61,7 +63,8 @@ struct gli_loader_type : public loader_type {
 		VkFormatFeatureFlags feature_flags,
 		VkSharingMode sharingMode,
 		const std::vector<uint32_t> &queueFamilyIndices,
-		std::istream &stream);
+		std::istream &stream,
+		bool flip_y);
 };
 
 uint32_t bytes_per_pixel(VkFormat format);

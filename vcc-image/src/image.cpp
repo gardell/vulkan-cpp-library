@@ -55,11 +55,11 @@ std::string dump_physical_device_format_properties(VkPhysicalDevice physical_dev
 image::image_type create(const type::supplier<const vcc::queue::queue_type> &queue,
 	VkImageCreateFlags flags, VkImageUsageFlags usage,
 	VkFormatFeatureFlags feature_flags, VkSharingMode sharingMode,
-	const std::vector<uint32_t> &queueFamilyIndices, std::istream &&stream) {
+	const std::vector<uint32_t> &queueFamilyIndices, std::istream &&stream, bool flip_y) {
 
 	for (const std::shared_ptr<internal::loader_type> &loader : internal::g_loaders) {
 		if (loader->can_load(stream)) {
-			return loader->load(queue, flags, usage, feature_flags, sharingMode, queueFamilyIndices, stream);
+			return loader->load(queue, flags, usage, feature_flags, sharingMode, queueFamilyIndices, stream, flip_y);
 		}
 	}
 	throw vcc_exception("Failed to load texture, no suitable loader found");

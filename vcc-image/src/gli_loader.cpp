@@ -55,7 +55,8 @@ image::image_type gli_loader_type::load(
 	VkFormatFeatureFlags feature_flags,
 	VkSharingMode sharingMode,
 	const std::vector<uint32_t> &queueFamilyIndices,
-	std::istream &stream) {
+	std::istream &stream,
+	bool flip_y) {
 	usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	std::stringstream ss;
 	ss << stream.rdbuf();

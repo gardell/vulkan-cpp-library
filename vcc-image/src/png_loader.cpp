@@ -50,7 +50,8 @@ image::image_type png_loader_type::load(
 	VkFormatFeatureFlags feature_flags,
 	VkSharingMode sharingMode,
 	const std::vector<uint32_t> &queueFamilyIndices,
-	std::istream &stream) {
+	std::istream &stream,
+	bool flip_y) {
 	std::unique_ptr<png_struct, std::function<void(png_structp)>> png_ptr(
 		png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL), [](png_structp png_ptr) {
 			png_destroy_read_struct(&png_ptr, NULL, NULL);
@@ -70,22 +71,64 @@ image::image_type png_loader_type::load(
 
 	unsigned int sig_read = 0;
 	png_set_sig_bytes(png_ptr.get(), sig_read);
-	png_read_png(png_ptr.get(), info_ptr.get(),
-		PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING
-		| PNG_TRANSFORM_EXPAND, NULL);
+
+	png_read_info(png_ptr.get(), info_ptr.get());
 
 	png_uint_32 width, height;
 	int bit_depth, color_type, interlace_type;
 	png_get_IHDR(png_ptr.get(), info_ptr.get(), &width, &height, &bit_depth, &color_type,
 		&interlace_type, NULL, NULL);
 
+	png_set_packing(png_ptr.get());
+	if (color_type == PNG_COLOR_TYPE_PALETTE)
+		png_set_palette_to_rgb(png_ptr.get());
+
+	if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+		png_set_expand_gray_1_2_4_to_8(png_ptr.get());
+
+	if (png_get_valid(png_ptr.get(), info_ptr.get(), PNG_INFO_tRNS)) {
+		png_set_tRNS_to_alpha(png_ptr.get());
+	}
+
+	// TODO(gardell): Needed for 16 bit on some platforms?
+	//png_set_swap(png_ptr);
+
+	// TODO(gardell): 16 bit require 0xFFFF?
+	// TODO(gardell): Avoid call on platforms that support RGB?
+	png_set_filler(png_ptr.get(), 0xFF, PNG_FILLER_AFTER);
+
+	png_read_update_info(png_ptr.get(), info_ptr.get());
+
+	png_get_IHDR(png_ptr.get(), info_ptr.get(), &width, &height, &bit_depth, &color_type,
+		&interlace_type, NULL, NULL);
+
+	png_size_t row_bytes = png_get_rowbytes(png_ptr.get(), info_ptr.get());
+	std::string data(row_bytes * height, 0);
+
+	std::vector<png_bytep> row_pointers;
+	row_pointers.reserve(height);
+	if (flip_y) {
+		for (png_uint_32 row = 0; row < height; ++row) {
+			row_pointers.push_back(png_bytep(data.data()) + (height - row - 1) * row_bytes);
+		}
+	} else {
+		for (png_uint_32 row = 0; row < height; ++row) {
+			row_pointers.push_back(png_bytep(data.data()) + row * row_bytes);
+		}
+	}
+
+	png_read_image(png_ptr.get(), row_pointers.data());
+
+	png_read_end(png_ptr.get(), info_ptr.get());
+
 	VkFormat format;
 	switch (color_type) {
+	case PNG_COLOR_TYPE_RGB:
+		// png_set_filler has expanded RGB to RGBA
+		//format = VK_FORMAT_R8G8B8_UNORM;
+		//break;
 	case PNG_COLOR_TYPE_RGBA:
 		format = VK_FORMAT_R8G8B8A8_UNORM;
-		break;
-	case PNG_COLOR_TYPE_RGB:
-		format = VK_FORMAT_R8G8B8_UNORM;
 		break;
 		// Probably never happens since PNG_TRANSFORM_EXPAND, should use low level api for more control.
 	case PNG_COLOR_TYPE_GRAY:
@@ -97,17 +140,6 @@ image::image_type png_loader_type::load(
 	default:
 		assert(!"Unsupported png format");
 		break;
-	}
-
-	png_size_t row_bytes = png_get_rowbytes(png_ptr.get(), info_ptr.get());
-	std::string data(row_bytes * height, 0);
-
-	png_bytepp row_pointers = png_get_rows(png_ptr.get(), info_ptr.get());
-
-	const bool flip_y(true);
-	const png_uint_32 row_start(flip_y ? height - 1 : 0), row_increment(flip_y ? -1 : 1);
-	for (png_uint_32 i = 0; i < height; i++) {
-		std::copy_n(row_pointers[i], row_bytes, data.begin() + (row_bytes * (row_start + row_increment * i)));
 	}
 
 	const VkExtent3D extent{ width, height, 1 };

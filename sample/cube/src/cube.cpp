@@ -210,13 +210,14 @@ int main(int argc, const char **argv) {
 		auto image(vcc::image::create(std::ref(queue),
 			0, VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT,
 			VK_SHARING_MODE_EXCLUSIVE, {}, env, state->activity->clazz,
-			"png_transparency_demonstration_1"));
+			"png_transparency_demonstration_1", true));
 #else
 		auto image(vcc::image::create(std::ref(queue),
 			0, VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT,
 			VK_SHARING_MODE_EXCLUSIVE, {},
 			std::ifstream("textures/png/PNG_transparency_demonstration_1.png",
-				std::ios_base::binary | std::ios_base::in)));
+				std::ios_base::binary | std::ios_base::in),
+			true));
 #endif  // __ANDROID__
 
 		auto image_view(vcc::image_view::create(std::move(image),
