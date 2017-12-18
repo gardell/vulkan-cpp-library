@@ -127,7 +127,6 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
 add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/glslang-src
                  ${CMAKE_CURRENT_BINARY_DIR}/glslang-build)
 
-
 #
 # OpenVR
 #
@@ -213,6 +212,43 @@ execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gltf-sample-models-download)
 
+#
+# OpenCOLLADA
+#
+
+# Download and unpack OpenCOLLADA at configure time
+configure_file(CMakeLists.txt.opencollada.in
+               opencollada-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/opencollada-download)
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/opencollada-download)
+
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/opencollada-src
+                 ${CMAKE_CURRENT_BINARY_DIR}/opencollada-build)
+
+#
+# freetype
+#
+
+# Download and unpack freetype at configure time
+configure_file(CMakeLists.txt.freetype.in
+               freetype-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/freetype-download)
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/freetype-download)
+
+#set(DISABLE_FORCE_DEBUG_POSTFIX TRUE)
+#set(BUILD_SHARED_LIBS TRUE)
+set(WITH_ZLIB FALSE)
+set(WITH_BZip2 FALSE)
+set(WITH_PNG FALSE)
+set(WITH_HarfBuzz FALSE)
+
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/freetype-src
+                 ${CMAKE_CURRENT_BINARY_DIR}/freetype-build)
+
 endif()
 
 enable_testing()
@@ -239,14 +275,16 @@ add_subdirectory(types)
 add_subdirectory(vcc)
 add_subdirectory(vcc-image)
 add_subdirectory(gltf)
+add_subdirectory(sample/collada_mesh)
 add_subdirectory(sample/cube)
 add_subdirectory(sample/heightmap)
 add_subdirectory(sample/lighting)
 add_subdirectory(sample/normal-mapping-and-cube-texture)
 add_subdirectory(sample/teapot)
+add_subdirectory(sample/text)
 add_subdirectory(sample/gltf)
 
-set(SAMPLES cube heightmap lighting normal-mapping-and-cube-texture teapot sample_gltf)
+set(SAMPLES cube heightmap lighting normal-mapping-and-cube-texture teapot sample_gltf sample_collada text)
 
 if(NOT DEFINED ANDROID_NDK)
 
