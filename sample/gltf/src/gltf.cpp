@@ -143,24 +143,24 @@ int main(int argc, const char **argv) {
 			extensions));
 
 		device = vcc::device::create(physical_device,
-		{ vcc::device::queue_create_info_type{
-			vcc::physical_device::get_queue_family_properties_with_flag(
-			vcc::physical_device::queue_famility_properties(physical_device),
-				VK_QUEUE_GRAPHICS_BIT),
-			{ 0 } }
-		},
-		{
-			//"VK_LAYER_NV_optimus",
-			//"VK_LAYER_LUNARG_api_dump",
-			"VK_LAYER_LUNARG_core_validation",
-			"VK_LAYER_LUNARG_device_limits",
-			"VK_LAYER_LUNARG_image",
-			"VK_LAYER_LUNARG_object_tracker",
-			"VK_LAYER_LUNARG_parameter_validation",
-			"VK_LAYER_LUNARG_standard_validation",
-			"VK_LAYER_LUNARG_swapchain",
-			"VK_LAYER_GOOGLE_unique_objects",
-		}, extensions, {});
+			{ vcc::device::queue_create_info_type{
+				vcc::physical_device::get_queue_family_properties_with_flag(
+				vcc::physical_device::queue_famility_properties(physical_device),
+					VK_QUEUE_GRAPHICS_BIT),
+				{ 0 } }
+			},
+			{
+				//"VK_LAYER_NV_optimus",
+				//"VK_LAYER_LUNARG_api_dump",
+				"VK_LAYER_LUNARG_core_validation",
+				"VK_LAYER_LUNARG_device_limits",
+				"VK_LAYER_LUNARG_image",
+				"VK_LAYER_LUNARG_object_tracker",
+				"VK_LAYER_LUNARG_parameter_validation",
+				"VK_LAYER_LUNARG_standard_validation",
+				"VK_LAYER_LUNARG_swapchain",
+				"VK_LAYER_GOOGLE_unique_objects",
+			}, extensions, {});
 	}
 
 	type::mat4 projection_matrix, modelview_matrix;
