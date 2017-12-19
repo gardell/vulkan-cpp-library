@@ -10,17 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-include_directories(include)
-include_directories(../types/include)
-include_directories(../vcc/include)
-include_directories(${VULKAN_CPP_LIBRARY_BINARY_DIR}/vcc/include)
-include_directories(${GLI_SRC_DIR})
-include_directories(${GLI_SRC_DIR}/external)
+
 if(NOT PNG_INCLUDE_DIR STREQUAL "")
   include_directories(${PNG_INCLUDE_DIR})
-endif()
-if(NOT VULKAN_SDK_DIR STREQUAL "")
-  include_directories(${VULKAN_SDK_DIR}/include)
 endif()
 remove_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
@@ -41,8 +33,10 @@ endif()
 
 add_library(vcc-image ${VCC_IMAGE_INCLUDES} ${VCC_IMAGE_SRCS})
 
+target_include_directories(vcc-image PUBLIC include)
+
 if(DEFINED ANDROID_NDK)
-  target_link_libraries(vcc-image vcc)
+  target_link_libraries(vcc-image vcc gli)
 else()
-  target_link_libraries(vcc-image vcc png)
+  target_link_libraries(vcc-image vcc gli png)
 endif()

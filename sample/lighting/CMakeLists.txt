@@ -12,12 +12,7 @@
 #
 
 include_directories(include)
-include_directories(../../types/include)
-include_directories(../../vcc/include)
-include_directories(${VULKAN_CPP_LIBRARY_BINARY_DIR}/vcc/include)
-include_directories(${GLM_SRC_DIR})
 if(NOT VULKAN_SDK_DIR STREQUAL "")
-  include_directories(${VULKAN_SDK_DIR}/include)
   link_directories(${VULKAN_SDK_DIR}/lib)
 endif()
 
@@ -49,7 +44,7 @@ else()
   add_executable(lighting ${SAMPLE_LIGHTING_INCLUDES} ${SAMPLE_LIGHTING_SRCS})
 endif()
 
-target_link_libraries(lighting vcc)
+target_link_libraries(lighting vcc glm)
 
 if(NOT DEFINED ANDROID_NDK)
   foreach(FILE ${SAMPLE_LIGHTING_SHADER_SRCS})

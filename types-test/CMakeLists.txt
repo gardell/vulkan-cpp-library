@@ -11,10 +11,6 @@
 # limitations under the License.
 #
 
-include_directories(${GLM_SRC_DIR})
-include_directories(../types/include)
-include_directories(${gtest_SOURCE_DIR}/include)
-
 set(TYPES_TEST_SRCS
   "src/serialize_type_test.cpp"
   "src/transform_type_test.cpp"
@@ -22,7 +18,7 @@ set(TYPES_TEST_SRCS
 )
 
 add_executable(types-test ${TYPES_TEST_SRCS})
-target_link_libraries(types-test types gtest gtest_main)
+target_link_libraries(types-test types glm gtest gtest_main)
 
 add_test(types-tests types-test)
 

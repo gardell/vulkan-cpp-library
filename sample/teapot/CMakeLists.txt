@@ -12,13 +12,7 @@
 #
 
 include_directories(include)
-include_directories(../../types/include)
-include_directories(../../vcc/include)
-include_directories(${VULKAN_CPP_LIBRARY_BINARY_DIR}/vcc/include)
-include_directories(../../vcc-image/include)
-include_directories(${GLM_SRC_DIR})
 if(NOT VULKAN_SDK_DIR STREQUAL "")
-  include_directories(${VULKAN_SDK_DIR}/include)
   link_directories(${VULKAN_SDK_DIR}/lib)
 endif()
 
@@ -49,7 +43,7 @@ if(DEFINED ANDROID_NDK)
 else()
   add_executable(teapot ${SAMPLE_TEAPOT_INCLUDES} ${SAMPLE_TEAPOT_SRCS})
 endif()
-target_link_libraries(teapot vcc vcc-image)
+target_link_libraries(teapot vcc vcc-image glm)
 
 if(NOT DEFINED ANDROID_NDK)
   foreach(FILE ${SAMPLE_TEAPOT_SHADER_SRCS})

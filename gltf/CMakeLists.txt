@@ -13,10 +13,6 @@
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(${GLM_SRC_DIR})
-include_directories(include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/../json-src/src)
-
 set(GLTF_INCLUDES
     "include/gltf/base64.h"
     "include/gltf/conversions.h"
@@ -34,3 +30,7 @@ set(GLTF_SRCS
 )
 
 add_library(gltf ${GLTF_INCLUDES} ${GLTF_SRCS})
+
+target_link_libraries(gltf glm nlohmann_json)
+
+target_include_directories(gltf PUBLIC include)

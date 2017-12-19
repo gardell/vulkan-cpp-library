@@ -12,14 +12,8 @@
 #
 
 include_directories(include)
-include_directories(../../types/include)
-include_directories(../../vcc/include)
-include_directories(${VULKAN_CPP_LIBRARY_BINARY_DIR}/vcc/include)
-include_directories(../../vcc-image/include)
-include_directories(${GLM_SRC_DIR})
 include_directories(${OPENVR_SOURCE_DIR}/headers)
 if(NOT VULKAN_SDK_DIR STREQUAL "")
-  include_directories(${VULKAN_SDK_DIR}/include)
   link_directories(${VULKAN_SDK_DIR}/lib)
 endif()
 
@@ -55,7 +49,7 @@ endif()
 link_directories(${OPENVR_LIB_DIR})
 
 add_executable(openvr ${SAMPLE_OPENVR_INCLUDES} ${SAMPLE_OPENVR_SRCS})
-target_link_libraries(openvr vcc vcc-image openvr_api)
+target_link_libraries(openvr vcc vcc-image openvr_api glm)
 
 foreach(FILE ${SAMPLE_OPENVR_SHADER_SRCS})
   get_filename_component(FILEWE ${FILE} NAME_WE)

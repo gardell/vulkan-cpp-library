@@ -11,15 +11,10 @@
 # limitations under the License.
 #
 
-include_directories(../../types/include)
-include_directories(../../vcc/include)
-include_directories(${VULKAN_CPP_LIBRARY_BINARY_DIR}/vcc/include)
-include_directories(../../vcc-image/include)
-include_directories(${GLM_SRC_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/../../freetype-build/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/../../freetype-src/include)
+
 if(NOT VULKAN_SDK_DIR STREQUAL "")
-  include_directories(${VULKAN_SDK_DIR}/include)
   link_directories(${VULKAN_SDK_DIR}/lib)
 endif()
 
@@ -47,7 +42,7 @@ else()
   add_executable(text ${SAMPLE_TEXT_SRCS})
 endif()
 
-target_link_libraries(text vcc vcc-image freetype)
+target_link_libraries(text vcc vcc-image freetype glm)
 
 if(NOT DEFINED ANDROID_NDK)
   foreach(FILE ${SAMPLE_TEXT_SHADER_SRCS})

@@ -13,18 +13,13 @@
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(${GLM_SRC_DIR})
-include_directories(../gltf/include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/../json-src/src)
-include_directories(${gtest_SOURCE_DIR}/include)
-
 set(GLTF_TEST_SRCS
   "src/format.cpp"
   "src/gltf_test.cpp"
 )
 
 add_executable(gltf-test ${GLTF_TEST_SRCS})
-target_link_libraries(gltf-test gltf gtest gtest_main)
+target_link_libraries(gltf-test glm gltf gtest gtest_main)
 
 add_test(gltf-tests gltf-test)
 

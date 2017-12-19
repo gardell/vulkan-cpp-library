@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-include_directories(${GLM_SRC_DIR})
-include_directories(include)
 
 set(TYPES_INCLUDES
   "include/type/storage.h"
@@ -31,3 +29,6 @@ set(TYPES_SRCS
 
 add_library(types ${TYPES_INCLUDES} ${TYPES_SRCS})
 
+target_link_libraries(types glm)
+
+target_include_directories(types PUBLIC include)

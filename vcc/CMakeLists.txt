@@ -11,17 +11,6 @@
 # limitations under the License.
 #
 include(GenerateExportHeader)
-include_directories(include)
-include_directories(${VULKAN_CPP_LIBRARY_BINARY_DIR}/vcc/include)
-include_directories(../types/include)
-include_directories(${GLM_SRC_DIR})
-if(NOT VULKAN_SDK_DIR STREQUAL "")
-  include_directories(${VULKAN_SDK_DIR}/include)
-  link_directories(${VULKAN_SDK_DIR}/lib)
-endif()
-if(DEFINED ANDROID_NDK)
-  include_directories(${ANDROID_NDK}/sources/android/native_app_glue/)
-endif()
 
 set(VCC_INCLUDES
   "include/vcc/command.h"
@@ -106,6 +95,17 @@ if(DEFINED ANDROID_NDK)
 endif()
 
 add_library(vcc ${VCC_INCLUDES} ${VCC_SRCS})
+
+target_include_directories(vcc PUBLIC include)
+target_include_directories(vcc PUBLIC ${VULKAN_CPP_LIBRARY_BINARY_DIR}/vcc/include)
+if(NOT VULKAN_SDK_DIR STREQUAL "")
+  target_include_directories(vcc PUBLIC ${VULKAN_SDK_DIR}/include)
+  link_directories(${VULKAN_SDK_DIR}/lib)
+endif()
+if(DEFINED ANDROID_NDK)
+  include_directories(${ANDROID_NDK}/sources/android/native_app_glue/)
+endif()
+
 add_definitions(-D_ENABLE_ATOMIC_ALIGNMENT_FIX)
 generate_export_header(vcc
   BASE_NAME vcc
@@ -113,7 +113,7 @@ generate_export_header(vcc
   EXPORT_FILE_NAME include/vcc/export.h
   STATIC_DEFINE VCC_LIBRARY_BUILT_AS_STATIC)
 
-target_link_libraries(vcc types ${VULKAN_LIBRARY})
+target_link_libraries(vcc types glm ${VULKAN_LIBRARY})
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   target_link_libraries(vcc pthread xcb xcb-keysyms atomic)

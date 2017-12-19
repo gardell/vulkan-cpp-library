@@ -10,10 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-include_directories(include)
-include_directories(../types/include)
-include_directories(${SPIRV-Headers_SOURCE_DIR}/include/)
-include_directories(${SPIRV_TOOLS_SRC}/include/)
 
 set(SPIRV_REFLECTION_INCLUDES
   "include/reflection/analyzer.h"
@@ -29,3 +25,6 @@ set(SPIRV_REFLECTION_SRCS
 
 add_library(spirv-reflection ${SPIRV_REFLECTION_INCLUDES} ${SPIRV_REFLECTION_SRCS})
 
+target_include_directories(spirv-reflection PUBLIC include)
+target_include_directories(spirv-reflection PUBLIC ${SPIRV-Headers_SOURCE_DIR}/include/)
+target_include_directories(spirv-reflection PUBLIC ${SPIRV_TOOLS_SRC}/include/)

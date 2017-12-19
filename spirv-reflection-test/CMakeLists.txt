@@ -11,11 +11,6 @@
 # limitations under the License.
 #
 
-include_directories(../spirv-reflection/include)
-include_directories(${gtest_SOURCE_DIR}/include)
-include_directories(${SPIRV-Headers_SOURCE_DIR}/include/)
-include_directories(${SPIRV_TOOLS_SRC}/include/)
-
 set(SPIRV_REFLECTION_TEST_SRCS
   "src/subpass_test.cpp"
   "src/push_constant_test.cpp"
