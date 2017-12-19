@@ -1,15 +1,18 @@
 #ifndef _GLTF_OPTIONAL_H_
 #define _GLTF_OPTIONAL_H_
 
+#include <functional>
+#include <json.hpp>
+#include <optional>
 
-inline std::optional<std::reference_wrapper<const json>> optional_ref(const json &j, std::string key) {
+inline std::optional<std::reference_wrapper<const nlohmann::json>> optional_ref(const nlohmann::json &j, std::string key) {
 	auto it(j.find(key));
-	auto v = it != j.end() ? std::make_optional(std::cref(*it)) : std::optional<std::reference_wrapper<const json>>();
+	auto v = it != j.end() ? std::make_optional(std::cref(*it)) : std::optional<std::reference_wrapper<const nlohmann::json>>();
 	return v;
 }
 
 template<typename T>
-std::optional<T> optional_cast(const json &json, std::string key) {
+std::optional<T> optional_cast(const nlohmann::json &json, std::string key) {
 	auto it(json.find(key));
 	return it != json.end() ? std::make_optional(it->get<T>()) : std::optional<T>();
 }

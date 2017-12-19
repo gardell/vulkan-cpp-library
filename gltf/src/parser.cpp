@@ -10,12 +10,10 @@
 #include <string_view>
 #include <utility>
 
-using json = nlohmann::json;
-
 namespace gltf {
 
 	template<typename T, std::size_t... I>
-	T json_array_to_glm_type(const json &json, std::index_sequence<I...>) {
+	T json_array_to_glm_type(const nlohmann::json &json, std::index_sequence<I...>) {
 		if (json.size() < sizeof...(I)) {
 			throw std::invalid_argument("not enough fields for glm type");
 		} else {
@@ -24,23 +22,23 @@ namespace gltf {
 	}
 
 	template<std::size_t I>
-	glm::vec<I, float> json_array_to_vec(const json &j) {
+	glm::vec<I, float> json_array_to_vec(const nlohmann::json &j) {
 		return json_array_to_glm_type<glm::vec<I, float>>(j, std::make_index_sequence<I>{});
 	}
 
 	template<std::size_t C, std::size_t R>
-	glm::mat<C, R, float> json_array_to_mat(const json &j) {
+	glm::mat<C, R, float> json_array_to_mat(const nlohmann::json &j) {
 		return json_array_to_glm_type<glm::mat<C, R, float>>(j, std::make_index_sequence<C * R>{});
 	}
 
 	template<typename Container>
-	glm::quat json_array_to_quat(const json &j) {
+	glm::quat json_array_to_quat(const nlohmann::json &j) {
 		return json_array_to_glm_type<glm::quat>(j, std::index_sequence<3, 0, 1, 2>{});
 	}
 
 	template<typename F>
-	auto transform_json_array_to_container(const json &array, F &&f) {
-		typedef decltype(f(std::declval<const json &>())) result_type;
+	auto transform_json_array_to_container(const nlohmann::json &array, F &&f) {
+		typedef decltype(f(std::declval<const nlohmann::json &>())) result_type;
 		container_type<result_type> container;
 		container.reserve(array.size());
 		std::transform(
@@ -74,7 +72,7 @@ namespace gltf {
 
 	template<typename T>
 	std::optional<iterator_type<T>> optional_index_to_iterator(
-		const json &json,
+		const nlohmann::json &json,
 		const char *field,
 		const container_type<T> &container) {
 		return map(
@@ -86,32 +84,32 @@ namespace gltf {
 	model_type parse(const format_type &format) {
 		container_type<std::string>
 			extensions_used(
-				format.json.value("extensionsUsed", json::array())
+				format.json.value("extensionsUsed", nlohmann::json::array())
 					.get<std::vector<std::string>>()),
 			extensions_required(
-				format.json.value("extensionsRequired", json::array())
+				format.json.value("extensionsRequired", nlohmann::json::array())
 					.get<std::vector<std::string>>());
 
 		container_type<buffer_type> buffers(map(
 			optional_ref(format.json, "buffers"),
-			[&](const json &buffers) {
-			return transform_json_array_to_container(buffers, [&](const json &buffer) {
+			[&](const nlohmann::json &buffers) {
+			return transform_json_array_to_container(buffers, [&](const nlohmann::json &buffer) {
 				return buffer_type{
-					map(optional_ref(buffer, "uri"), [](const json &uri) {
+					map(optional_ref(buffer, "uri"), [](const nlohmann::json &uri) {
 						return uri_type(uri.get<std::string>());
 					}),
 					buffer["byteLength"],
 					optional_cast<std::string>(buffer, "name"),
-					buffer.value("extensions", json::object()),
-					buffer.value("extras", json()),
+					buffer.value("extensions", nlohmann::json::object()),
+					buffer.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<buffer_type>()));
 
 		container_type<buffer_view_type> buffer_views(map(
 			optional_ref(format.json, "bufferViews"),
-			[&](const json &buffer_views) {
-			return transform_json_array_to_container(buffer_views, [&](const json &buffer_view) {
+			[&](const nlohmann::json &buffer_views) {
+			return transform_json_array_to_container(buffer_views, [&](const nlohmann::json &buffer_view) {
 				return buffer_view_type{
 					index_to_iterator(buffers, buffer_view["buffer"]),
 					optional_cast<off_t>(buffer_view, "byteOffset").value_or(off_t(0)),
@@ -119,16 +117,16 @@ namespace gltf {
 					optional_cast<off_t>(buffer_view, "byteStride"),
 					map(optional_cast<unsigned_integer_type>(buffer_view, "target"), buffer_view_target_from_json),
 					optional_cast<std::string>(buffer_view, "name"),
-					buffer_view.value("extensions", json::object()),
-					buffer_view.value("extras", json()),
+					buffer_view.value("extensions", nlohmann::json::object()),
+					buffer_view.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<buffer_view_type>()));
 
 		container_type<accessor_type> accessors(map(
 			optional_ref(format.json, "accessors"),
-			[&](const json &accessors) {
-				return transform_json_array_to_container(accessors, [&](const json &accessor) {
+			[&](const nlohmann::json &accessors) {
+				return transform_json_array_to_container(accessors, [&](const nlohmann::json &accessor) {
 					std::optional<iterator_type<buffer_view_type>> buffer_view(
 						optional_index_to_iterator(accessor, "bufferView", buffer_views)
 					);
@@ -140,40 +138,40 @@ namespace gltf {
 						bool(accessor.value("normalized", false)),
 						size_t(accessor["count"]),
 						accessor_type_from_json(accessor["type"]),
-						map(optional_cast<json>(accessor, "max"), number_container_from_json),
-						map(optional_cast<json>(accessor, "min"), number_container_from_json),
-						accessor.value("sparse", json::object()),
+						map(optional_cast<nlohmann::json>(accessor, "max"), number_container_from_json),
+						map(optional_cast<nlohmann::json>(accessor, "min"), number_container_from_json),
+						accessor.value("sparse", nlohmann::json::object()),
 						optional_cast<std::string>(accessor, "name"),
-						accessor.value("extensions", json::object()),
-						accessor.value("extras", json()),
+						accessor.value("extensions", nlohmann::json::object()),
+						accessor.value("extras", nlohmann::json()),
 					};
 				});
 			}).value_or(container_type<accessor_type>()));
 
 		container_type<camera_type> cameras(map(
 			optional_ref(format.json, "cameras"),
-			[&](const json &cameras) {
-			return transform_json_array_to_container(cameras, [&](const json &camera) {
+			[&](const nlohmann::json &cameras) {
+			return transform_json_array_to_container(cameras, [&](const nlohmann::json &camera) {
 				if (camera["type"] == "perspective") {
 					const auto &perspective(camera["perspective"]);
 					return camera_type{
 						camera_type::perspective_type{
 						map(
 							optional_ref(perspective, "aspectRatio"),
-							[](const json &value) { return number_type(value); }
+							[](const nlohmann::json &value) { return number_type(value); }
 						),
 						perspective["yfov"],
 						map(
 							optional_ref(perspective, "zfar"),
-							[](const json &value) { return number_type(value); }
+							[](const nlohmann::json &value) { return number_type(value); }
 						),
 						perspective["znear"],
-						perspective.value("extensions", json::object()),
-						perspective.value("extras", json()),
+						perspective.value("extensions", nlohmann::json::object()),
+						perspective.value("extras", nlohmann::json()),
 					},
 					optional_cast<std::string>(camera, "name"),
-					camera.value("extensions", json::object()),
-					camera.value("extras", json()),
+					camera.value("extensions", nlohmann::json::object()),
+					camera.value("extras", nlohmann::json()),
 					};
 				}
 				else if (camera["type"] == "orthographic") {
@@ -184,12 +182,12 @@ namespace gltf {
 						orthographic["ymag"],
 						orthographic["zfar"],
 						orthographic["znear"],
-						orthographic.value("extensions", json::object()),
-						orthographic.value("extras", json()),
+						orthographic.value("extensions", nlohmann::json::object()),
+						orthographic.value("extras", nlohmann::json()),
 					},
 					optional_cast<std::string>(camera, "name"),
-					camera.value("extensions", json::object()),
-					camera.value("extras", json()),
+					camera.value("extensions", nlohmann::json::object()),
+					camera.value("extras", nlohmann::json()),
 					};
 				}
 				else {
@@ -200,8 +198,8 @@ namespace gltf {
 
 		container_type<sampler_type> samplers(map(
 			optional_ref(format.json, "samplers"),
-			[&](const json &samplers) {
-			return transform_json_array_to_container(samplers, [&](const json &sampler) {
+			[&](const nlohmann::json &samplers) {
+			return transform_json_array_to_container(samplers, [&](const nlohmann::json &sampler) {
 				return sampler_type{
 					map(
 						optional_cast<unsigned_integer_type>(sampler, "magFilter"),
@@ -220,24 +218,24 @@ namespace gltf {
 						sampler_wrap_from_json
 					).value_or(sampler_type::REPEAT),
 					optional_cast<std::string>(sampler, "name"),
-					sampler.value("extensions", json::object()),
-					sampler.value("extras", json()),
+					sampler.value("extensions", nlohmann::json::object()),
+					sampler.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<sampler_type>()));
 
 		container_type<image_type> images(map(
 			optional_ref(format.json, "images"),
-			[&](const json &images) {
-			return transform_json_array_to_container(images, [&](const json &image) {
+			[&](const nlohmann::json &images) {
+			return transform_json_array_to_container(images, [&](const nlohmann::json &image) {
 				auto uri(map(
 					optional_cast<std::string>(image, "uri"),
 					[](std::string &&string) { return uri_type{ std::forward<std::string>(string) }; }));
 				auto buffer_view(optional_index_to_iterator(image, "bufferView", buffer_views));
 				auto mime(map(optional_cast<std::string>(image, "mimeType"), image_mime_type_from_json));
 				auto name(optional_cast<std::string>(image, "name"));
-				auto extensions(image.value("extensions", json::object()));
-				auto extras(image.value("extras", json()));
+				auto extensions(image.value("extensions", nlohmann::json::object()));
+				auto extras(image.value("extras", nlohmann::json()));
 				if (uri) {
 					return image_type{
 						uri.value(),
@@ -269,22 +267,22 @@ namespace gltf {
 
 		container_type<texture_type> textures(map(
 			optional_ref(format.json, "textures"),
-			[&](const json &textures) {
-			return transform_json_array_to_container(textures, [&](const json &texture) {
+			[&](const nlohmann::json &textures) {
+			return transform_json_array_to_container(textures, [&](const nlohmann::json &texture) {
 				return texture_type{
 					optional_index_to_iterator(texture, "sampler", samplers),
 					optional_index_to_iterator(texture, "source", images),
 					optional_cast<std::string>(texture, "name"),
-					texture.value("extensions", json::object()),
-					texture.value("extras", json()),
+					texture.value("extensions", nlohmann::json::object()),
+					texture.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<texture_type>()));
 
 		container_type<material_type> materials(map(
 			optional_ref(format.json, "materials"),
-			[&](const json &materials) {
-			return transform_json_array_to_container(materials, [&](const json &material) {
+			[&](const nlohmann::json &materials) {
+			return transform_json_array_to_container(materials, [&](const nlohmann::json &material) {
 				auto pbr_metallic_roughness(map(optional_ref(material, "pbrMetallicRoughness"),
 					[&](const auto &pbr_metallic_roughness) {
 						return material_type::pbr_metallic_roughness_type{
@@ -294,13 +292,13 @@ namespace gltf {
 							),
 							map(
 								optional_ref(pbr_metallic_roughness, "baseColorTexture"),
-								[&](const json &texture) {
+								[&](const nlohmann::json &texture) {
 									return texture_info_type{
 										index_to_iterator(textures, texture["index"]),
 										optional_cast<unsigned_integer_type>(texture, "texcoord")
 										.value_or(0),
-										texture.value("extensions", json::object()),
-										texture.value("extras", json()),
+										texture.value("extensions", nlohmann::json::object()),
+										texture.value("extras", nlohmann::json()),
 									};
 								}
 							),
@@ -308,60 +306,60 @@ namespace gltf {
 							optional_cast<decimal_type>(pbr_metallic_roughness, "roughnessFactor"),
 							map(
 								optional_ref(pbr_metallic_roughness, "metallicRoughnessTexture"),
-								[&](const json &texture) {
+								[&](const nlohmann::json &texture) {
 									return texture_info_type{
 										index_to_iterator(textures, texture["index"]),
 										optional_cast<unsigned_integer_type>(texture, "texcoord")
 										.value_or(0),
-										texture.value("extensions", json::object()),
-										texture.value("extras", json()),
+										texture.value("extensions", nlohmann::json::object()),
+										texture.value("extras", nlohmann::json()),
 									};
 								}
 							),
-							pbr_metallic_roughness.get().value("extensions", json::object()),
-							pbr_metallic_roughness.get().value("extras", json()),
+							pbr_metallic_roughness.get().value("extensions", nlohmann::json::object()),
+							pbr_metallic_roughness.get().value("extras", nlohmann::json()),
 						};
 					}));
 				return material_type{
 					optional_cast<std::string>(material, "name"),
-					material.value("extensions", json::object()),
-					material.value("extras", json()),
+					material.value("extensions", nlohmann::json::object()),
+					material.value("extras", nlohmann::json()),
 					pbr_metallic_roughness ? std::move(pbr_metallic_roughness).value() : material_type::pbr_metallic_roughness_type{},
 					map(
 						optional_ref(material, "normalTexture"),
-						[&](const json &texture) {
+						[&](const nlohmann::json &texture) {
 							return normal_texture_info_type{
 								index_to_iterator(textures, texture["index"]),
 								optional_cast<unsigned_integer_type>(texture, "texcoord")
 									.value_or(0),
 								optional_cast<decimal_type>(texture, "scale"),
-								texture.value("extensions", json::object()),
-								texture.value("extras", json()),
+								texture.value("extensions", nlohmann::json::object()),
+								texture.value("extras", nlohmann::json()),
 							};
 						}
 					),
 					map(
 						optional_ref(material, "occlusionTexture"),
-						[&](const json &texture) {
+						[&](const nlohmann::json &texture) {
 							return occlusion_texture_info_type{
 								index_to_iterator(textures, texture["index"]),
 								optional_cast<unsigned_integer_type>(texture, "texcoord")
 									.value_or(0),
 								optional_cast<decimal_type>(texture, "strength"),
-								texture.value("extensions", json::object()),
-								texture.value("extras", json()),
+								texture.value("extensions", nlohmann::json::object()),
+								texture.value("extras", nlohmann::json()),
 							};
 						}
 					),
 					map(
 						optional_ref(material, "emissiveTexture"),
-						[&](const json &texture) {
+						[&](const nlohmann::json &texture) {
 							return texture_info_type{
 								index_to_iterator(textures, texture["index"]),
 								optional_cast<unsigned_integer_type>(texture, "texcoord")
 									.value_or(0),
-								texture.value("extensions", json::object()),
-								texture.value("extras", json()),
+								texture.value("extensions", nlohmann::json::object()),
+								texture.value("extras", nlohmann::json()),
 							};
 						}
 					),
@@ -380,11 +378,11 @@ namespace gltf {
 
 		container_type<mesh_type> meshes(map(
 			optional_ref(format.json, "meshes"),
-			[&](const json &meshes) {
-			return transform_json_array_to_container(meshes, [&](const json &mesh) {
+			[&](const nlohmann::json &meshes) {
+			return transform_json_array_to_container(meshes, [&](const nlohmann::json &mesh) {
 				container_type<primitive_type> primitives(transform_json_array_to_container(
 					mesh["primitives"],
-					[&](const json &primitive) {
+					[&](const nlohmann::json &primitive) {
 						const auto &attributes_json(primitive["attributes"]);
 						map_type<attribute_type, iterator_type<accessor_type>> attributes;
 						for (auto it(std::cbegin(attributes_json)); it != std::cend(attributes_json); ++it) {
@@ -394,7 +392,7 @@ namespace gltf {
 						}
 						auto targets(map(
 							optional_ref(primitive, "targets"),
-							[&](const json &targets_json) {
+							[&](const nlohmann::json &targets_json) {
 								map_type<primitive_type::morph_target_attribute_type, iterator_type<accessor_type>> targets;
 								for (auto it(std::cbegin(targets_json)); it != std::cend(targets_json); ++it) {
 									targets.emplace(std::make_pair(
@@ -410,8 +408,8 @@ namespace gltf {
 							optional_index_to_iterator(primitive, "material", materials),
 							optional_cast<primitive_type::mode_type>(primitive, "mode").value_or(primitive_type::TRIANGLES),
 							std::move(targets).value_or(map_type<primitive_type::morph_target_attribute_type, iterator_type<accessor_type>>()),
-							mesh.value("extensions", json::object()),
-							mesh.value("extras", json()),
+							mesh.value("extensions", nlohmann::json::object()),
+							mesh.value("extras", nlohmann::json()),
 						};
 					}
 				));
@@ -419,31 +417,31 @@ namespace gltf {
 					std::move(primitives),
 					optional_cast<container_type<decimal_type>>(mesh, "weights"),
 					optional_cast<std::string>(mesh, "name"),
-					mesh.value("extensions", json::object()),
-					mesh.value("extras", json()),
+					mesh.value("extensions", nlohmann::json::object()),
+					mesh.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<mesh_type>()));
 
 		container_type<skin_type> skins(map(
 			optional_ref(format.json, "skins"),
-			[&](const json &skins) {
-			return transform_json_array_to_container(skins, [&](const json &skin) {
+			[&](const nlohmann::json &skins) {
+			return transform_json_array_to_container(skins, [&](const nlohmann::json &skin) {
 				return skin_type{
 					optional_index_to_iterator(skin, "inverseBindMatrices", accessors),
 					std::optional<iterator_type<node_type>>(),
 					container_type<iterator_type<node_type>>(),
 					optional_cast<std::string>(skin, "name"),
-					skin.value("extensions", json::object()),
-					skin.value("extras", json()),
+					skin.value("extensions", nlohmann::json::object()),
+					skin.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<skin_type>()));
 
 		container_type<node_type> nodes(map(
 			optional_ref(format.json, "nodes"),
-			[&](const json &nodes) {
-			return transform_json_array_to_container(nodes, [&](const json &node) {
+			[&](const nlohmann::json &nodes) {
+			return transform_json_array_to_container(nodes, [&](const nlohmann::json &node) {
 
 				auto matrix(map(
 					optional_ref(node, "matrix"),
@@ -454,7 +452,7 @@ namespace gltf {
 						json_array_to_vec<3>),
 					map(
 						optional_ref(node, "rotation"),
-						json_array_to_quat<json>),
+						json_array_to_quat<nlohmann::json>),
 					map(
 						optional_ref(node, "scale"),
 						json_array_to_vec<3>),
@@ -469,20 +467,20 @@ namespace gltf {
 					optional_index_to_iterator(node, "mesh", meshes),
 					optional_cast<container_type<decimal_type>>(node, "weights"),
 					optional_cast<std::string>(node, "name"),
-					node.value("extensions", json::object()),
-					node.value("extras", json()),
+					node.value("extensions", nlohmann::json::object()),
+					node.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<node_type>()));
 
 		map(
 			optional_ref(format.json, "nodes"),
-			[&](const json &nodes_json) {
+			[&](const nlohmann::json &nodes_json) {
 			zip_foreach(
-				[&](const json &node_json, node_type &node) {
+				[&](const nlohmann::json &node_json, node_type &node) {
 				node.children = map(
 					optional_ref(node_json, "children"),
-					[&](const json &children) {
+					[&](const nlohmann::json &children) {
 						return transform_json_array_to_container(
 							node_json["children"],
 							std::bind(
@@ -501,9 +499,9 @@ namespace gltf {
 
 		map(
 			optional_ref(format.json, "skins"),
-			[&](const json &skins_json) {
+			[&](const nlohmann::json &skins_json) {
 				zip_foreach(
-					[&](const json &skin_json, skin_type &skin) {
+					[&](const nlohmann::json &skin_json, skin_type &skin) {
 						skin.skeleton = optional_index_to_iterator(skin_json, "skeleton", nodes);
 						skin.joints = transform_json_array_to_container(
 							skin_json["joints"],
@@ -522,12 +520,12 @@ namespace gltf {
 
 		container_type<animation_type> animations(map(
 			optional_ref(format.json, "animations"),
-			[&](const json &animations) {
-			return transform_json_array_to_container(animations, [&](const json &animation) {
+			[&](const nlohmann::json &animations) {
+			return transform_json_array_to_container(animations, [&](const nlohmann::json &animation) {
 				container_type<animation_sampler_type> samplers(
 					transform_json_array_to_container(
 						animation["samplers"],
-						[&](const json &sampler) {
+						[&](const nlohmann::json &sampler) {
 					return animation_sampler_type{
 						index_to_iterator(accessors, sampler["input"]),
 						map(
@@ -535,8 +533,8 @@ namespace gltf {
 							animation_sampler_interpolation_from_json)
 						.value_or(animation_sampler_type::LINEAR),
 						index_to_iterator(accessors, sampler["output"]),
-						sampler.value("extensions", json::object()),
-						sampler.value("extras", json()),
+						sampler.value("extensions", nlohmann::json::object()),
+						sampler.value("extras", nlohmann::json()),
 					};
 				}));
 
@@ -550,8 +548,8 @@ namespace gltf {
 							optional_index_to_iterator(target, "node", nodes),
 							channel_target_path_from_json(target["path"])
 						},
-						channel.value("extensions", json::object()),
-						channel.value("extras", json()),
+						channel.value("extensions", nlohmann::json::object()),
+						channel.value("extras", nlohmann::json()),
 					};
 				}
 				));
@@ -560,20 +558,20 @@ namespace gltf {
 					std::move(channels),
 					std::move(samplers),
 					optional_cast<std::string>(animation, "name"),
-					animation.value("extensions", json::object()),
-					animation.value("extras", json()),
+					animation.value("extensions", nlohmann::json::object()),
+					animation.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<animation_type>()));
 
 		container_type<scene_type> scenes(map(
 			optional_ref(format.json, "scenes"),
-			[&](const json &scenes) {
-			return transform_json_array_to_container(scenes, [&](const json &scene) {
+			[&](const nlohmann::json &scenes) {
+			return transform_json_array_to_container(scenes, [&](const nlohmann::json &scene) {
 				return scene_type{
 					map(
 						optional_ref(scene, "nodes"),
-						[&](const json &node) {
+						[&](const nlohmann::json &node) {
 							return transform_json_array_to_container(
 								node,
 								std::bind(
@@ -584,8 +582,8 @@ namespace gltf {
 						}
 					),
 					optional_cast<std::string>(scene, "name"),
-					scene.value("extensions", json::object()),
-					scene.value("extras", json()),
+					scene.value("extensions", nlohmann::json::object()),
+					scene.value("extras", nlohmann::json()),
 				};
 			});
 		}).value_or(container_type<scene_type>()));
@@ -604,8 +602,8 @@ namespace gltf {
 				optional_cast<std::string>(asset, "generator"),
 				asset["version"],
 				optional_cast<std::string>(asset, "minVersion"),
-				asset.value("extensions", json::object()),
-				asset.value("extras", json()),
+				asset.value("extensions", nlohmann::json::object()),
+				asset.value("extras", nlohmann::json()),
 			},
 			std::move(buffers),
 			std::move(buffer_views),
@@ -619,8 +617,8 @@ namespace gltf {
 			std::move(scenes),
 			std::move(skins),
 			std::move(textures),
-			asset.value("extensions", json::object()),
-			asset.value("extras", json()),
+			asset.value("extensions", nlohmann::json::object()),
+			asset.value("extras", nlohmann::json()),
 		};
 	}
 

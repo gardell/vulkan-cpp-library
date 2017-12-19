@@ -16,7 +16,7 @@ namespace gltf {
 		}
 	}
 
-	accessor_type::type_type accessor_type_from_json(const json &json) {
+	accessor_type::type_type accessor_type_from_json(const nlohmann::json &json) {
 		if (json == "SCALAR") {
 			return accessor_type::SCALAR;
 		}
@@ -43,7 +43,7 @@ namespace gltf {
 		}
 	}
 
-	container_type<number_type> number_container_from_json(const json &json) {
+	container_type<number_type> number_container_from_json(const nlohmann::json &json) {
 		if (!json.is_array()) {
 			throw std::invalid_argument("Not an array");
 		}
@@ -53,7 +53,7 @@ namespace gltf {
 	}
 
 	animation_sampler_type::interpolation_type animation_sampler_interpolation_from_json(
-		const json &value) {
+		const nlohmann::json &value) {
 		if (value == "LINEAR") {
 			return animation_sampler_type::LINEAR;
 		}
@@ -71,7 +71,7 @@ namespace gltf {
 		}
 	}
 
-	channel_type::target_type::path_type channel_target_path_from_json(const json &value) {
+	channel_type::target_type::path_type channel_target_path_from_json(const nlohmann::json &value) {
 		if (value == "translation") {
 			return channel_type::target_type::translation;
 		}
@@ -99,7 +99,7 @@ namespace gltf {
 		}
 	}
 
-	mime_type image_mime_type_from_json(const json &mime_type) {
+	mime_type image_mime_type_from_json(const nlohmann::json &mime_type) {
 		if (mime_type == "image/jpeg") {
 			return image_jpeg;
 		}
@@ -111,7 +111,7 @@ namespace gltf {
 		}
 	}
 
-	material_type::alpha_mode_type material_alpha_mode_from_json(const json &json) {
+	material_type::alpha_mode_type material_alpha_mode_from_json(const nlohmann::json &json) {
 		if (json == "OPAQUE") {
 			return material_type::alpha_mode_type::OPAQUE;
 		}
@@ -126,7 +126,7 @@ namespace gltf {
 		}
 	}
 
-	attribute_type attribute_from_json(const json &attribute) {
+	attribute_type attribute_from_json(const nlohmann::json &attribute) {
 		if (attribute == "POSITION") {
 			return attribute_type::POSITION;
 		}
@@ -156,7 +156,7 @@ namespace gltf {
 		}
 	}
 
-	primitive_type::morph_target_attribute_type morph_target_attribute_from_json(const json &attribute) {
+	primitive_type::morph_target_attribute_type morph_target_attribute_from_json(const nlohmann::json &attribute) {
 		if (attribute == "POSITION") {
 			return primitive_type::morph_target_attribute_type::POSITION;
 		}

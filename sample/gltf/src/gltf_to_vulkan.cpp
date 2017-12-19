@@ -910,7 +910,7 @@ namespace gltf_to_vulkan {
 							default_material = material(device, queue, wd, format,
 								gltf::material_type{
 									std::optional<std::string>(),
-									json(), json(),
+									nlohmann::json(), nlohmann::json(),
 
 									gltf::material_type::pbr_metallic_roughness_type{},
 									std::optional<gltf::normal_texture_info_type>(),

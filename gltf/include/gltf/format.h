@@ -7,12 +7,10 @@
 #include <string>
 #include <optional>
 
-using json = nlohmann::json;
-
 namespace gltf {
 
 	struct format_type {
-		json json;
+		nlohmann::json json;
 		std::optional<std::string> binary;
 	};
 
@@ -52,15 +50,15 @@ namespace gltf {
 				}
 			}
 
-			return format_type{ json::parse(json), binary };
+			return format_type{ nlohmann::json::parse(json), binary };
 		}
 		else {
 #if 0
 			std::ostringstream buffer;
 			stream >> buffer.rdbuf();
-			return format_type{ json::parse(buffer.str()) };
+			return format_type{ nlohmann::json::parse(buffer.str()) };
 #else
-			json j;
+			nlohmann::json j;
 			stream >> j;
 			return format_type{ std::move(j) };
 #endif

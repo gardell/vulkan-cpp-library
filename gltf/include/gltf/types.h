@@ -11,8 +11,6 @@
 #include <variant>
 #include <vector>
 
-using json = nlohmann::json;
-
 namespace gltf {
 
 	typedef int32_t integer_type;
@@ -34,7 +32,7 @@ namespace gltf {
 		number_type(integer_type value) : value(value) {}
 		number_type(unsigned_integer_type value) : value(value) {}
 		number_type(decimal_type value) : value(value) {}
-		number_type(const json &json) {
+		number_type(const nlohmann::json &json) {
 			if (json.is_number_float()) {
 				value = decimal_type(json);
 			}
@@ -116,7 +114,7 @@ namespace gltf {
 		std::optional<std::string> copyright, generator;
 		std::string version;
 		std::optional<std::string> min_version;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct buffer_type {
@@ -128,7 +126,7 @@ namespace gltf {
 		std::optional<uri_type> uri;
 		size_t byte_length;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct buffer_view_type {
@@ -148,7 +146,7 @@ namespace gltf {
 		std::optional<off_t> byte_stride;
 		std::optional<target_type> target;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct accessor_type {
@@ -183,9 +181,9 @@ namespace gltf {
 		size_t count;
 		type_type type;
 		std::optional<container_type<number_type>> max, min;
-		json sparse;
+		nlohmann::json sparse;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct camera_type {
@@ -196,7 +194,7 @@ namespace gltf {
 
 		struct orthographic_type {
 			number_type xmag, ymag, zfar, znear;
-			json extensions, extras;
+			nlohmann::json extensions, extras;
 		};
 
 		struct perspective_type {
@@ -204,12 +202,12 @@ namespace gltf {
 			number_type yfov;
 			std::optional<number_type> zfar;
 			number_type znear;
-			json extensions, extras;
+			nlohmann::json extensions, extras;
 		};
 
 		std::variant<orthographic_type, perspective_type> type;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	enum mime_type {
@@ -226,7 +224,7 @@ namespace gltf {
 		std::variant<uri_type, iterator_type<buffer_view_type>> uri_buffer_view;
 		std::optional<mime_type> mime_type; // required with buffer_view
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct sampler_type {
@@ -257,7 +255,7 @@ namespace gltf {
 		std::optional<min_filter_type> min_filter;
 		wrap_type wrap_s, wrap_t;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct texture_type {
@@ -271,7 +269,7 @@ namespace gltf {
 		std::optional<iterator_type<sampler_type>> sampler;
 		std::optional<iterator_type<image_type>> source;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct texture_info_type {
@@ -282,7 +280,7 @@ namespace gltf {
 
 		iterator_type<texture_type> index;
 		unsigned_integer_type texcoord;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct normal_texture_info_type {
@@ -294,7 +292,7 @@ namespace gltf {
 		iterator_type<texture_type> index;
 		unsigned_integer_type texcoord;
 		std::optional<decimal_type> scale;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct occlusion_texture_info_type {
@@ -306,7 +304,7 @@ namespace gltf {
 		iterator_type<texture_type> index;
 		unsigned_integer_type texcoord;
 		std::optional<decimal_type> strength;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct material_type {
@@ -320,7 +318,7 @@ namespace gltf {
 			std::optional<texture_info_type> base_color_texture;
 			std::optional<decimal_type> metallic_factor, roughness_factor;
 			std::optional<texture_info_type> metallic_roughness_texture;
-			json extensions, extras;
+			nlohmann::json extensions, extras;
 		};
 		enum alpha_mode_type {
 			OPAQUE,
@@ -329,7 +327,7 @@ namespace gltf {
 		};
 
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 
 		pbr_metallic_roughness_type pbr_metallic_roughness;
 		std::optional<normal_texture_info_type> normal_texture;
@@ -379,7 +377,7 @@ namespace gltf {
 		std::optional<iterator_type<material_type>> material;
 		mode_type mode;
 		map_type<morph_target_attribute_type, iterator_type<accessor_type>> targets;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct mesh_type {
@@ -391,7 +389,7 @@ namespace gltf {
 		container_type<primitive_type> primitives;
 		std::optional<container_type<decimal_type>> weights;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct translation_rotation_scale_type {
@@ -412,7 +410,7 @@ namespace gltf {
 		std::optional<iterator_type<node_type>> skeleton;
 		container_type<iterator_type<node_type>> joints;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct node_type {
@@ -428,7 +426,7 @@ namespace gltf {
 		std::optional<iterator_type<mesh_type>> mesh;
 		std::optional<container_type<decimal_type>> weights;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct animation_sampler_type {
@@ -446,7 +444,7 @@ namespace gltf {
 		iterator_type<accessor_type> input;
 		interpolation_type interpolation;
 		iterator_type<accessor_type> output;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct channel_type {
@@ -470,12 +468,12 @@ namespace gltf {
 
 			std::optional<iterator_type<node_type>> node;
 			path_type path;
-			json extensions, extras;
+			nlohmann::json extensions, extras;
 		};
 
 		iterator_type<animation_sampler_type> sampler;
 		target_type target;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct animation_type {
@@ -487,7 +485,7 @@ namespace gltf {
 		container_type<channel_type> channels;
 		container_type<animation_sampler_type> samplers;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct scene_type {
@@ -498,7 +496,7 @@ namespace gltf {
 
 		std::optional<container_type<iterator_type<node_type>>> nodes;
 		std::optional<std::string> name;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 	struct model_type {
@@ -523,7 +521,7 @@ namespace gltf {
 		container_type<scene_type> scenes;
 		container_type<skin_type> skins;
 		container_type<texture_type> textures;
-		json extensions, extras;
+		nlohmann::json extensions, extras;
 	};
 
 } // namespace gltf
